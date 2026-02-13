@@ -1,0 +1,65 @@
+diff --git a/app.py b/app.py
+index 1111111..2222222 100644
+--- a/app.py
++++ b/app.py
+@@ -1,7 +1,8 @@
+ import os
+ import re
+ import sqlite3
++import unicodedata
+ from pathlib import Path
+ from flask import Flask, g, render_template, request, redirect, url_for, session, flash
+@@ -15,7 +16,12 @@
+ FLAG_PATH = BASE_DIR / "flag.txt"
+ 
+ app = Flask(__name__)
+-app.secret_key = os.environ.get("SECRET_KEY", "fake_key_for_testing")
++# Require a real secret key in production to prevent cookie forgery.
++app.secret_key = os.environ.get("SECRET_KEY")
++if not app.secret_key:
++    raise RuntimeError("SECRET_KEY must be set")
+@@
+ ADMIN_PASSWORD = "fake_admin_password_for_testing"
+ ADMIN_USERNAME = "admin"
++
++
++def normalize_username(name: str) -> str:
++    # Normalize Unicode so registration, login, and admin checks agree.
++    return unicodedata.normalize("NFKC", name or "").casefold().strip()
+@@
+ def current_user():
+     return session.get("user")
+ 
+ 
+ def is_admin_username(name: str) -> bool:
+-    return bool(re.match(r"^admin$", name or "", flags=re.IGNORECASE))
++    return normalize_username(name) == normalize_username(ADMIN_USERNAME)
+@@
+     if request.method == "POST":
+-        username = (request.form.get("username") or "").strip()
++        username = normalize_username(request.form.get("username"))
+         password = (request.form.get("password") or "").strip()
+@@
+-        if username.lower() == "admin":
++        if username == normalize_username(ADMIN_USERNAME):
+             flash("This username is reserved.", "error")
+             return redirect(url_for("register"))
+@@
+     if request.method == "POST":
+-        username = (request.form.get("username") or "").strip()
++        username = normalize_username(request.form.get("username"))
+         password = (request.form.get("password") or "").strip()
+@@
+-        if row["username"] == ADMIN_USERNAME:
++        if normalize_username(row["username"]) == normalize_username(ADMIN_USERNAME):
+             flash("This account is locked. Contact staff.", "error")
+             return redirect(url_for("login"))
+@@
+     user = current_user()
+     if not user:
+         flash("Please login first.", "error")
+         return redirect(url_for("login"))
+ 
+     if not is_admin_username(user):
+         flash("Access denied.", "error")
+         return redirect(url_for("index"))

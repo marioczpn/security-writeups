@@ -1,6 +1,6 @@
 # Security Writeups
 
-This repository contains security writeups for CTF and training platforms.
+Notes from CTFs and training labs.
 
 ## Index
 
