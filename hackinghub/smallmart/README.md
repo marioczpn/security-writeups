@@ -1,13 +1,5 @@
 # SmallMart - Admin Access Bypass (Unicode Case Handling)
 
-## Overview
-SmallMart uses different case handling in two places. Registration checks `username.lower()` against `"admin"`, while the admin gate uses `re.IGNORECASE`. Those two behave differently with some Unicode letters, so a username can slip past registration yet still match the admin check.
-
-## Scope
-- Target: https://2cat0a0mm8d8.ctfhub.io
-- Platform: HackingHub
-- Challenge: SmallMart
-
 ## Challenge Details
 SmallMart is a lightweight online store used by a local shop to manage daily inventory and user accounts. The application looks simple, but it has recently undergone several rushed updates to improve usability and internal access controls. The objective is to identify and exploit a vulnerability by reviewing the provided source code.
 
@@ -16,6 +8,14 @@ Challenge metadata:
 - Released: Feb 9th, 2026
 - Author: RezyDev
 - Flag: 1 / 1
+
+## Scope
+- Target: Dynamic (copy the current hub URL)
+- Platform: HackingHub
+- Challenge: SmallMart
+
+## Overview
+This challenge has two issues: a Unicode case-handling mismatch that allows admin bypass, and a hardcoded default `SECRET_KEY` that enables session forgery when deployed without a real secret. The live target required the Unicode bypass, while the default secret issue applies to misconfigured deployments.
 
 ## Root Cause
 There are two distinct issues in the provided code.
@@ -44,7 +44,7 @@ This is the path that worked on the live instance where `SECRET_KEY` is set.
 
 1) Set target and password:
 ```bash
-TARGET="https://2cat0a0mm8d8.ctfhub.io"
+TARGET="https://<current-hub-host>.ctfhub.io"
 PASS="test123"
 ```
 
