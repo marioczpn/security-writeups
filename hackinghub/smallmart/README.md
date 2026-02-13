@@ -9,6 +9,8 @@ Challenge metadata:
 - Author: RezyDev
 - Flag: 1 / 1
 
+*For more information: https://app.hackinghub.io/hubs/smallmart
+
 ## Scope
 - Target: Dynamic (copy the current hub URL)
 - Platform: HackingHub
